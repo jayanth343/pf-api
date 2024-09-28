@@ -34,7 +34,7 @@ class FootPath(Resource):
             electric = int(electric)
             open_drain = int(open_drain)
             print(f"Electric: {electric}, OpenDrain: {open_drain}")
-            rf = Roboflow(api_key=os.getenv("ROBOFLOW_API_KEY"))
+            rf = Roboflow(api_key=os.environ.get("ROBOFLOW_API_KEY"))
             project = rf.workspace().project("orr")
             model = project.version(1).model
 
