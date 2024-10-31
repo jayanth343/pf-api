@@ -45,17 +45,26 @@ class FootPath(Resource):
 
             detections = sv.Detections.from_inference(result)
             image = cv2.imread(image_path)
+            print('image shape',image.shape)
             masks = detections.mask
-            if len(masks) > 0:
-                totalPixels = sum(mask.size for mask in masks)
-                footpathPixels = np.count_nonzero(masks[0]) 
-                footpathPercentage = (((footpathPixels / totalPixels) * 100) - 5*electric - 3*open_drain)+10 if totalPixels else 0
+            if masks is None:
+                return jsonify({'Percentage': -1})
             else:
-                footpathPercentage = 0
+                print('masks shape',masks.shape)
+                if len(masks) > 0:             
+                    totalPixels = sum(mask.size for mask in masks)
+                    print('totalPixels',totalPixels)
+                    footpathPixels = np.count_nonzero(masks[0]) 
+                    print('footpathPixels',footpathPixels)
+                    print(f'formula analysis: ((({footpathPixels} / {totalPixels}) * 100) ({(footpathPixels/totalPixels)*100}) - 5*{electric} ({5*electric}) - 3*{open_drain} ({3*open_drain}))+10 if {totalPixels} else 0')
+                    print(f'footpathPercentage: {(((footpathPixels / totalPixels) * 100) - 5*electric - 3*open_drain)+10 if totalPixels else 0}')
+                    footpathPercentage = (((footpathPixels / totalPixels) * 100) - 5*electric - 3*open_drain)+10 if totalPixels else 0
+                else:
+                    footpathPercentage = 0
 
-            print(f"Prediction complete: {footpathPercentage}% footpath detected")
+                print(f"Prediction complete: {footpathPercentage}% footpath detected")
 
-            return jsonify({'Percentage': footpathPercentage})
+                return jsonify({'Percentage': footpathPercentage})
 
         except Exception as e:
             print(f"Error processing request: {str(e)}")
